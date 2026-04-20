@@ -47,7 +47,7 @@ const reducer = (state, action) => {
           : data,
       );
     case "DELETE":
-      return state.filter((data) => String(data.id) !== String(action.id));
+      return state.filter((item) => Number(item.id) !== Number(action.id));
     default:
       return state;
   }
@@ -72,13 +72,14 @@ function App() {
     });
   };
 
-  const onUpdate = (id, content, emotionId) => {
+  const onUpdate = (id, emotionId, createDate, content) => {
     dispatch({
       type: "UPDATE",
       data: {
         id: id,
         emotionId: emotionId,
         content: content,
+        createDate: createDate,
       },
     });
   };

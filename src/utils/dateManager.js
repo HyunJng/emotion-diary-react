@@ -1,13 +1,15 @@
 export const getStringDate = (targetDate) => {
-    let year = targetDate.getFullYear();
-    let month = targetDate.getMonth() + 1;
-    let date = targetDate.getDate();
+    if(!targetDate) return;
+    let date = new Date(targetDate);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
 
     if(month < 10) {
         month = `0${month}`;
     }
-    if(date < 10) {
-        date = `0${date}`;
+    if(day < 10) {
+        day = `0${date}`;
     }
-    return `${year}-${month}-${date}`;
+    return `${year}-${month}-${day}`;
 }

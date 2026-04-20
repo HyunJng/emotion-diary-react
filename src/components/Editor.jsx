@@ -2,7 +2,7 @@ import "./Editor.css";
 import { getStringDate } from "../utils/dateManager.js";
 import EmotionItem from "./EmotionItem";
 import Button from "../components/Button.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const emotionList = [
@@ -28,12 +28,18 @@ const emotionList = [
   },
 ];
 
-const Editor = ({ onSubmit }) => {
+const Editor = ({ onSubmit, data }) => {
   const nav = useNavigate();
   const [input, setInput] = useState({
-    createDate: new Date(),
+    createDate: new Date().getTime(),
     emotionId: 3,
     content: "",
+  });
+
+  useEffect(() => {
+    if (data) {
+      setInput(data);
+    }
   });
 
   const onChangeInput = (e) => {
@@ -85,6 +91,7 @@ const Editor = ({ onSubmit }) => {
           name="content"
           onChange={onChangeInput}
           placeholder="오늘은 어땠나요?"
+          value={input.content}
         />
       </section>
       <section className="button_section">
