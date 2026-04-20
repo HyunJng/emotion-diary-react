@@ -4,29 +4,7 @@ import EmotionItem from "./EmotionItem";
 import Button from "../components/Button.jsx";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-const emotionList = [
-  {
-    emotionId: 1,
-    emotionName: "완전 좋음",
-  },
-  {
-    emotionId: 2,
-    emotionName: "좋음",
-  },
-  {
-    emotionId: 3,
-    emotionName: "보통",
-  },
-  {
-    emotionId: 4,
-    emotionName: "별로",
-  },
-  {
-    emotionId: 5,
-    emotionName: "끔찍함",
-  },
-];
+import { emotionList } from "../utils/constants.js";
 
 const Editor = ({ onSubmit, data }) => {
   const nav = useNavigate();
@@ -40,7 +18,7 @@ const Editor = ({ onSubmit, data }) => {
     if (data) {
       setInput(data);
     }
-  });
+  }, [data]);
 
   const onChangeInput = (e) => {
     let name = e.target.name;
