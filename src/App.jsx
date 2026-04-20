@@ -1,6 +1,6 @@
 import "./App.css";
-import { Routes, Route, Link } from "react-router-dom";
-import { useReducer, useRef, createContext } from "react";
+import { Routes, Route } from "react-router-dom";
+import { useReducer, createContext, useEffect } from "react";
 
 import Diary from "./pages/Diary";
 import New from "./pages/New";
@@ -8,43 +8,27 @@ import Home from "./pages/Home";
 import Edit from "./pages/Edit";
 import NotFound from "./pages/NotFound";
 
-import Button from "./components/Button";
-import Header from "./components/Header";
+import {
+  fetchDiaries,
+  createDiary,
+  updateDiary,
+  deleteDiary,
+} from "./api/diaryApi.js";
 
-const mockData = [
-  {
-    id: 1,
-    createDate: new Date("2026-04-20").getTime(),
-    emotionId: 1,
-    content: "1번 일기",
-  },
-  {
-    id: 2,
-    createDate: new Date("2026-04-19").getTime(),
-    emotionId: 2,
-    content: "2번 일기",
-  },
-  {
-    id: 3,
-    createDate: new Date("2026-03-19").getTime(),
-    emotionId: 3,
-    content: "3번 일기",
-  },
-];
+// 인증 구현 전까지 임시로 고정. 추후 로그인 흐름으로 교체 필요
+const CURRENT_USER_ID = 1;
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case "INIT":
+      return action.data;
     case "CREATE":
       return [action.data, ...state];
     case "UPDATE":
-      return state.map((data) =>
-        String(data.id) == String(action.data.id)
-          ? {
-              ...data,
-              emotionId: action.data.emotionId,
-              content: action.data.content,
-            }
-          : data,
+      return state.map((item) =>
+        String(item.id) === String(action.data.id)
+          ? { ...item, ...action.data }
+          : item,
       );
     case "DELETE":
       return state.filter((item) => Number(item.id) !== Number(action.id));
@@ -55,61 +39,69 @@ const reducer = (state, action) => {
 
 export const DiaryStateContext = createContext();
 export const DiaryDispatchContext = createContext();
+export const UserContext = createContext();
 
 function App() {
-  const [data, dispatch] = useReducer(reducer, mockData);
-  const idRef = useRef(3);
+  const [data, dispatch] = useReducer(reducer, []);
 
-  const onCreate = (emotionId, createDate, content) => {
-    dispatch({
-      type: "CREATE",
-      data: {
-        id: idRef.current++,
-        emotionId: emotionId,
-        content: content,
-        createDate: createDate.getTime(),
-      },
-    });
+  useEffect(() => {
+    fetchDiaries(CURRENT_USER_ID)
+      .then((diaries) => dispatch({ type: "INIT", data: diaries }))
+      .catch(console.error);
+  }, []);
+
+  const onCreate = async (emotionId, createDate, content) => {
+    try {
+      const created = await createDiary(CURRENT_USER_ID, {
+        emotionId,
+        content,
+        createDate: Number(new Date(createDate)),
+      });
+      dispatch({ type: "CREATE", data: created });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const onUpdate = (id, emotionId, createDate, content) => {
-    dispatch({
-      type: "UPDATE",
-      data: {
-        id: id,
-        emotionId: emotionId,
-        content: content,
-        createDate: createDate,
-      },
-    });
+  const onUpdate = async (id, emotionId, createDate, content) => {
+    try {
+      const updated = await updateDiary(id, {
+        emotionId,
+        content,
+        createDate: Number(new Date(createDate)),
+      });
+      dispatch({ type: "UPDATE", data: { id, ...updated } });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const onDelete = (id) => {
-    dispatch({
-      type: "DELETE",
-      id: id,
-    });
+  const onDelete = async (id) => {
+    try {
+      await deleteDiary(id);
+      dispatch({ type: "DELETE", id });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
     <div>
-      <DiaryStateContext.Provider value={{ data }}>
-        <DiaryDispatchContext.Provider
-          value={{
-            onCreate,
-            onUpdate,
-            onDelete,
-          }}
-        >
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/new" element={<New />} />
-            <Route path="/diary/:id" element={<Diary />} />
-            <Route path="/edit/:id" element={<Edit />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </DiaryDispatchContext.Provider>
-      </DiaryStateContext.Provider>
+      <UserContext.Provider value={{ userId: CURRENT_USER_ID }}>
+        <DiaryStateContext.Provider value={{ data }}>
+          <DiaryDispatchContext.Provider
+            value={{ onCreate, onUpdate, onDelete }}
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/new" element={<New />} />
+              <Route path="/diary/:id" element={<Diary />} />
+              <Route path="/edit/:id" element={<Edit />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </DiaryDispatchContext.Provider>
+        </DiaryStateContext.Provider>
+      </UserContext.Provider>
     </div>
   );
 }
