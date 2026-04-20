@@ -1,0 +1,30 @@
+.UserBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 0;
+  gap: 14px;
+  border-bottom: 1px solid rgb(226, 226, 226);
+}
+
+.UserBar .nickname {
+  font-size: 18px;
+  color: #555;
+}
+
+.UserBar .logout_btn {
+  background: none;
+  border: 1px solid rgb(200, 200, 200);
+  border-radius: 5px;
+  padding: 4px 12px;
+  font-size: 16px;
+  font-family: "NanumPenScript";
+  color: #888;
+  cursor: pointer;
+}
+
+.UserBar .logout_btn:hover {
+  background-color: rgb(253, 86, 95);
+  border-color: rgb(253, 86, 95);
+  color: white;
+}

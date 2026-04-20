@@ -1,22 +1,27 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
-import { useReducer, createContext, useEffect } from "react";
+import { useReducer, createContext, useEffect, useState } from "react";
 
 import Diary from "./pages/Diary";
 import New from "./pages/New";
 import Home from "./pages/Home";
 import Edit from "./pages/Edit";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import PrivateRoute from "./components/PrivateRoute";
 
-import {
-  fetchDiaries,
-  createDiary,
-  updateDiary,
-  deleteDiary,
-} from "./api/diaryApi.js";
+import { fetchDiaries, createDiary, updateDiary, deleteDiary } from "./api/diaryApi.js";
+import { login as loginApi, register as registerApi } from "./api/authApi.js";
 
-// 인증 구현 전까지 임시로 고정. 추후 로그인 흐름으로 교체 필요
-const CURRENT_USER_ID = 1;
+const getStoredUser = () => {
+  try {
+    const user = localStorage.getItem("auth_user");
+    return user ? JSON.parse(user) : null;
+  } catch {
+    return null;
+  }
+};
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -43,16 +48,43 @@ export const UserContext = createContext();
 
 function App() {
   const [data, dispatch] = useReducer(reducer, []);
+  const [currentUser, setCurrentUser] = useState(getStoredUser);
 
   useEffect(() => {
-    fetchDiaries(CURRENT_USER_ID)
+    if (!currentUser) {
+      dispatch({ type: "INIT", data: [] });
+      return;
+    }
+    fetchDiaries(currentUser.id)
       .then((diaries) => dispatch({ type: "INIT", data: diaries }))
       .catch(console.error);
-  }, []);
+  }, [currentUser]);
+
+  const storeAuth = (token, user) => {
+    localStorage.setItem("auth_token", token);
+    localStorage.setItem("auth_user", JSON.stringify(user));
+    setCurrentUser(user);
+  };
+
+  const login = async (email, password) => {
+    const { token, user } = await loginApi(email, password);
+    storeAuth(token, user);
+  };
+
+  const register = async (email, password, nickname) => {
+    const { token, user } = await registerApi(email, password, nickname);
+    storeAuth(token, user);
+  };
+
+  const logout = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
+    setCurrentUser(null);
+  };
 
   const onCreate = async (emotionId, createDate, content) => {
     try {
-      const created = await createDiary(CURRENT_USER_ID, {
+      const created = await createDiary(currentUser.id, {
         emotionId,
         content,
         createDate: Number(new Date(createDate)),
@@ -87,16 +119,44 @@ function App() {
 
   return (
     <div>
-      <UserContext.Provider value={{ userId: CURRENT_USER_ID }}>
+      <UserContext.Provider value={{ currentUser, login, register, logout }}>
         <DiaryStateContext.Provider value={{ data }}>
-          <DiaryDispatchContext.Provider
-            value={{ onCreate, onUpdate, onDelete }}
-          >
+          <DiaryDispatchContext.Provider value={{ onCreate, onUpdate, onDelete }}>
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/new" element={<New />} />
-              <Route path="/diary/:id" element={<Diary />} />
-              <Route path="/edit/:id" element={<Edit />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route
+                path="/"
+                element={
+                  <PrivateRoute>
+                    <Home />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/new"
+                element={
+                  <PrivateRoute>
+                    <New />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/diary/:id"
+                element={
+                  <PrivateRoute>
+                    <Diary />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/edit/:id"
+                element={
+                  <PrivateRoute>
+                    <Edit />
+                  </PrivateRoute>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </DiaryDispatchContext.Provider>

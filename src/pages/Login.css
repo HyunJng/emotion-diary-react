@@ -1,0 +1,63 @@
+.AuthForm {
+  padding: 20px 0;
+}
+
+.AuthForm > section {
+  margin-bottom: 28px;
+}
+
+.AuthForm > section > h4 {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+}
+
+.AuthForm > section > input {
+  background-color: rgb(236, 236, 236);
+  border: none;
+  border-radius: 5px;
+  font-size: 20px;
+  padding: 8px 12px;
+  font-family: "NanumPenScript";
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.AuthForm .button_section {
+  display: flex;
+  flex-direction: column;
+}
+
+.AuthForm .button_section .Button {
+  width: 100%;
+  padding: 12px;
+  font-size: 20px;
+}
+
+.AuthForm .error_msg {
+  color: rgb(253, 86, 95);
+  font-size: 18px;
+  margin: -16px 0 16px 0;
+}
+
+.AuthForm .link_section {
+  text-align: center;
+  font-size: 18px;
+  color: #888;
+  margin-top: 20px;
+}
+
+.AuthForm .link_section a {
+  color: rgb(100, 201, 100);
+  text-decoration: none;
+}
+
+.back_btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-family: "NanumPenScript";
+  cursor: pointer;
+  color: #555;
+  padding: 0;
+}
