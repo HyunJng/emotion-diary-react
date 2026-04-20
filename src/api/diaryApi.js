@@ -6,7 +6,7 @@ const authHeaders = () => {
 };
 
 export const fetchDiaries = async (userId) => {
-  const res = await fetch(`${BASE_URL}/api/users/${userId}/diaries`, {
+  const res = await fetch(`${BASE_URL}/api/diaries`, {
     headers: { ...authHeaders() },
   });
   if (!res.ok) throw new Error(`fetchDiaries failed: ${res.status}`);
@@ -14,7 +14,7 @@ export const fetchDiaries = async (userId) => {
 };
 
 export const createDiary = async (userId, { emotionId, content, createDate }) => {
-  const res = await fetch(`${BASE_URL}/api/users/${userId}/diaries`, {
+  const res = await fetch(`${BASE_URL}/api/diaries`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ emotionId, content, createDate }),
