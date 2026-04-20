@@ -25,6 +25,15 @@ export const fetchDiaries = async ({
   return res.json();
 };
 
+export const fetchMonthlyStats = async (year, month) => {
+  const params = new URLSearchParams({ year, month });
+  const res = await fetch(`${BASE_URL}/api/diaries/stats?${params}`, {
+    headers: { ...authHeaders() },
+  });
+  if (!res.ok) throw new Error(`fetchMonthlyStats failed: ${res.status}`);
+  return res.json(); // { "1": 5, "2": 3, "3": 8, "4": 2, "5": 1 }
+};
+
 export const fetchDiary = async (id) => {
   const res = await fetch(`${BASE_URL}/api/diaries/${id}`, {
     headers: { ...authHeaders() },

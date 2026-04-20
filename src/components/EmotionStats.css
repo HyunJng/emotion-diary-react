@@ -1,0 +1,62 @@
+.EmotionStats {
+  padding: 20px 0 16px;
+  border-bottom: 1px solid rgb(226, 226, 226);
+}
+
+.EmotionStats > h4 {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0 0 4px 0;
+}
+
+.EmotionStats .empty_msg {
+  font-size: 20px;
+  color: #aaa;
+  text-align: center;
+  padding: 28px 0;
+  margin: 0;
+}
+
+/* 도넛 차트 툴팁 */
+.stats_tooltip {
+  background-color: white;
+  border: 1px solid rgb(226, 226, 226);
+  border-radius: 5px;
+  padding: 6px 12px;
+  font-size: 18px;
+  font-family: "NanumPenScript";
+  color: #333;
+  box-shadow: rgba(100, 100, 100, 0.1) 0px 2px 8px;
+}
+
+/* 범례 */
+.EmotionStats .legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  padding-top: 8px;
+}
+
+.EmotionStats .legend_item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.EmotionStats .legend_img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.EmotionStats .legend_name {
+  font-size: 16px;
+  color: #777;
+}
+
+.EmotionStats .legend_count {
+  font-size: 20px;
+  font-weight: bold;
+}

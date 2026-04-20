@@ -3,8 +3,9 @@ import Button from "../components/Button";
 import DiaryList from "../components/DiaryList";
 import Header from "../components/Header";
 import UserBar from "../components/UserBar";
+import EmotionStats from "../components/EmotionStats";
 import { DiaryStateContext } from "../App";
-import { fetchDiaries } from "../api/diaryApi.js";
+import { fetchDiaries, fetchMonthlyStats } from "../api/diaryApi.js";
 import "./Home.css";
 
 const Home = () => {
@@ -13,6 +14,7 @@ const Home = () => {
   const [page, setPage] = useState(0);
   const [sort, setSort] = useState("latest");
   const [pageResult, setPageResult] = useState({ content: [], totalPages: 1 });
+  const [stats, setStats] = useState({});
 
   useEffect(() => {
     fetchDiaries({
@@ -25,6 +27,12 @@ const Home = () => {
       .then(setPageResult)
       .catch(console.error);
   }, [pivotDate, page, sort, dataVersion]);
+
+  useEffect(() => {
+    fetchMonthlyStats(pivotDate.getFullYear(), pivotDate.getMonth() + 1)
+      .then(setStats)
+      .catch(console.error);
+  }, [pivotDate, dataVersion]);
 
   const onIncreaseMonth = () => {
     setPivotDate(new Date(pivotDate.getFullYear(), pivotDate.getMonth() + 1));
@@ -44,6 +52,7 @@ const Home = () => {
         leftChild={<Button text={"<"} onClick={onDecreaseMonth} />}
         rightChild={<Button text={">"} onClick={onIncreaseMonth} />}
       />
+      <EmotionStats stats={stats} />
       <DiaryList
         data={pageResult.content}
         sort={sort}
