@@ -1,6 +1,6 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
-import { useReducer, createContext, useEffect, useState } from "react";
+import { useReducer, createContext, useState } from "react";
 
 import Diary from "./pages/Diary";
 import New from "./pages/New";
@@ -11,7 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PrivateRoute from "./components/PrivateRoute";
 
-import { fetchDiaries, createDiary, updateDiary, deleteDiary } from "./api/diaryApi.js";
+import { createDiary, updateDiary, deleteDiary } from "./api/diaryApi.js";
 import { login as loginApi, register as registerApi } from "./api/authApi.js";
 
 const getStoredUser = () => {
@@ -25,8 +25,6 @@ const getStoredUser = () => {
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case "INIT":
-      return action.data;
     case "CREATE":
       return [action.data, ...state];
     case "UPDATE":
@@ -37,6 +35,8 @@ const reducer = (state, action) => {
       );
     case "DELETE":
       return state.filter((item) => Number(item.id) !== Number(action.id));
+    case "CLEAR":
+      return [];
     default:
       return state;
   }
@@ -47,18 +47,11 @@ export const DiaryDispatchContext = createContext();
 export const UserContext = createContext();
 
 function App() {
+  // data는 CRUD 직후 낙관적 캐시 역할 (목록은 Home이 직접 페이지 단위로 fetch)
   const [data, dispatch] = useReducer(reducer, []);
+  // CRUD 성공 시 증가 → Home의 useEffect가 감지해 현재 페이지를 리패치
+  const [dataVersion, setDataVersion] = useState(0);
   const [currentUser, setCurrentUser] = useState(getStoredUser);
-
-  useEffect(() => {
-    if (!currentUser) {
-      dispatch({ type: "INIT", data: [] });
-      return;
-    }
-    fetchDiaries(currentUser.id)
-      .then((diaries) => dispatch({ type: "INIT", data: diaries }))
-      .catch(console.error);
-  }, [currentUser]);
 
   const storeAuth = (token, user) => {
     localStorage.setItem("auth_token", token);
@@ -80,6 +73,7 @@ function App() {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
     setCurrentUser(null);
+    dispatch({ type: "CLEAR" });
   };
 
   const onCreate = async (emotionId, createDate, content) => {
@@ -90,12 +84,14 @@ function App() {
         createDate: Number(new Date(createDate)),
       });
       dispatch({ type: "CREATE", data: created });
+      setDataVersion((v) => v + 1);
     } catch (e) {
       console.error(e);
     }
   };
 
   const onUpdate = async (id, emotionId, createDate, content) => {
+    console.log("업데이트 실행");
     try {
       const updated = await updateDiary(id, {
         emotionId,
@@ -103,6 +99,7 @@ function App() {
         createDate: Number(new Date(createDate)),
       });
       dispatch({ type: "UPDATE", data: { id, ...updated } });
+      setDataVersion((v) => v + 1);
     } catch (e) {
       console.error(e);
     }
@@ -112,6 +109,7 @@ function App() {
     try {
       await deleteDiary(id);
       dispatch({ type: "DELETE", id });
+      setDataVersion((v) => v + 1);
     } catch (e) {
       console.error(e);
     }
@@ -120,8 +118,10 @@ function App() {
   return (
     <div>
       <UserContext.Provider value={{ currentUser, login, register, logout }}>
-        <DiaryStateContext.Provider value={{ data }}>
-          <DiaryDispatchContext.Provider value={{ onCreate, onUpdate, onDelete }}>
+        <DiaryStateContext.Provider value={{ data, dataVersion }}>
+          <DiaryDispatchContext.Provider
+            value={{ onCreate, onUpdate, onDelete }}
+          >
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />

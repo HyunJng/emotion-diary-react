@@ -18,3 +18,8 @@
     background-color: rgb(253, 86, 95);
     color: white;
 }
+
+.Button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}

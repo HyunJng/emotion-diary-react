@@ -5,11 +5,31 @@ const authHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-export const fetchDiaries = async (userId) => {
-  const res = await fetch(`${BASE_URL}/api/diaries`, {
+// Spring Page<DiaryEntry> 응답: { content, totalPages, number, totalElements, ... }
+export const fetchDiaries = async ({
+  year,
+  month,
+  page = 0,
+  size = 10,
+  sort = "latest",
+} = {}) => {
+  const sortParam = sort === "oldest" ? "createDate,asc" : "createDate,desc";
+  const params = new URLSearchParams({ page, size, sort: sortParam });
+  if (year != null) params.append("year", year);
+  if (month != null) params.append("month", month);
+
+  const res = await fetch(`${BASE_URL}/api/diaries?${params}`, {
     headers: { ...authHeaders() },
   });
   if (!res.ok) throw new Error(`fetchDiaries failed: ${res.status}`);
+  return res.json();
+};
+
+export const fetchDiary = async (id) => {
+  const res = await fetch(`${BASE_URL}/api/diaries/${id}`, {
+    headers: { ...authHeaders() },
+  });
+  if (!res.ok) throw new Error(`fetchDiary failed: ${res.status}`);
   return res.json();
 };
 
