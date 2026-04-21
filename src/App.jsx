@@ -85,8 +85,10 @@ function App() {
       });
       dispatch({ type: "CREATE", data: created });
       setDataVersion((v) => v + 1);
+      return created.comment ?? null;
     } catch (e) {
       console.error(e);
+      return null;
     }
   };
 

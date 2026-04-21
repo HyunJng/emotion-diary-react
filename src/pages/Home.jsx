@@ -1,20 +1,24 @@
 import { useState, useContext, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Button from "../components/Button";
 import DiaryList from "../components/DiaryList";
 import Header from "../components/Header";
 import UserBar from "../components/UserBar";
 import EmotionStats from "../components/EmotionStats";
+import CommentModal from "../components/CommentModal";
 import { DiaryStateContext } from "../App";
 import { fetchDiaries, fetchMonthlyStats } from "../api/diaryApi.js";
 import "./Home.css";
 
 const Home = () => {
   const { dataVersion } = useContext(DiaryStateContext);
+  const location = useLocation();
   const [pivotDate, setPivotDate] = useState(new Date());
   const [page, setPage] = useState(0);
   const [sort, setSort] = useState("latest");
   const [pageResult, setPageResult] = useState({ content: [], totalPages: 1 });
   const [stats, setStats] = useState({});
+  const [modalComment, setModalComment] = useState(location.state?.comment ?? null);
 
   useEffect(() => {
     fetchDiaries({
@@ -46,6 +50,9 @@ const Home = () => {
 
   return (
     <div>
+      {modalComment && (
+        <CommentModal comment={modalComment} onClose={() => setModalComment(null)} />
+      )}
       <UserBar />
       <Header
         title={`${pivotDate.getFullYear()}년 ${pivotDate.getMonth() + 1} 월`}

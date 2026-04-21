@@ -8,9 +8,9 @@ import { DiaryDispatchContext } from "../App.jsx";
 const New = () => {
   const nav = useNavigate();
   const { onCreate } = useContext(DiaryDispatchContext);
-  const onSubmit = (input) => {
-    onCreate(input.emotionId, input.createDate, input.content);
-    nav("/", { replace: true });
+  const onSubmit = async (input) => {
+    const comment = await onCreate(input.emotionId, input.createDate, input.content);
+    nav("/", { replace: true, state: comment ? { comment } : undefined });
   };
   return (
     <div>
