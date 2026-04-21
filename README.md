@@ -3,7 +3,7 @@
 하루의 감정을 기록하고, 월별 감정 흐름을 시각화하는 다이어리 웹 애플리케이션입니다.  
 React + Spring Boot 기반의 풀스택 프로젝트로, 백엔드와의 REST API 연동 및 JWT 인증을 직접 구현했습니다.
 
-> **Backend Repository**: <!-- 백엔드 레포 링크 -->
+> [**Backend Repository**](https://github.com/HyunJng/emotion-diary-spring)
 
 ---
 
@@ -17,9 +17,9 @@ React + Spring Boot 기반의 풀스택 프로젝트로, 백엔드와의 REST AP
 |---------------------------|-----------|
 | ![홈](docs/Home.png) | ![상세](docs/Diary.png) |
 
-| 작성 / 수정 |
-|------------|
-| ![에디터](docs/Edit_New.png) |
+| 작성 / 수정 | AI 응원 코멘트 모달 |
+|------------|-------------------|
+| ![에디터](docs/Edit_New.png) | ![모달](docs/Modal.png) |
 
 ---
 
